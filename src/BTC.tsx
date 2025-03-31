@@ -114,8 +114,10 @@ export const SendBitcoinTransaction = () => {
             };
 
             const signedPsbt = await (primaryWallet as BitcoinWallet).signPsbt(signParams as any) as any;
-            const txHex = signedPsbt.toHex();
-
+            console.log(signedPsbt)
+            const txHex = bitcoin.Psbt.fromBase64(signedPsbt.signedPsbt).finalizeAllInputs().extractTransaction().toHex()
+            // const txHex = signedPsbt.toHex();
+            console.log(txHex)
             const txid = await broadcastTransaction(txHex);
             console.log("Transaction broadcasted: ", txid);
             alert("Transaction Sent! TXID: " + txid);
