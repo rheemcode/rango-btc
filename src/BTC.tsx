@@ -35,21 +35,21 @@ const createPsbtForTransaction = (senderAddress: any, recipientAddress: any, amo
         utxos.forEach((utxo: any) => {
             console.log(utxo)
             console.log(amountSats)
-            if (inputSum < amountSats) {
-                console.log(inputSum)
-                console.log(utxo.value)
-                psbt.addInput({
-                    hash: utxo.txid,
-                    index: utxo.vout,
-                    witnessUtxo: {
-                        script: bitcoin.address.toOutputScript(senderAddress, bitcoin.networks.bitcoin),
-                        value: utxo.value,
-                    },
-                });
-                inputSum += utxo.value;
-            }
-        });
 
+            console.log(inputSum)
+            console.log(utxo.value)
+            psbt.addInput({
+                hash: utxo.txid,
+                index: utxo.vout,
+                witnessUtxo: {
+                    script: bitcoin.address.toOutputScript(senderAddress, bitcoin.networks.bitcoin),
+                    value: utxo.value,
+                },
+            });
+            inputSum += utxo.value;
+
+        });
+        console.log(inputSum)
         const estimatedTxSize = psbt.inputCount * 180 + 2 * 34 + 10; // Approximate size
         const fee = estimatedTxSize * FEE_RATE;
         const amountToSend = inputSum - fee;
@@ -78,7 +78,8 @@ const createPsbtForTransaction = (senderAddress: any, recipientAddress: any, amo
 
 export const SendBitcoinTransaction = () => {
     const { primaryWallet } = useDynamicContext();
-    const recipientAddress = "bc1p50d8fhc06aym87cp9h93rfq0l2z7y67df0h70998fhy62aetjsvqlq9qwl"
+    const recipientAddress = "bc1qm6t6eayvmx09zt6y4xak635tt89tk8h0hztv35"
+
     const [amount, setAmount] = useState(0.0001);
     const [sending, setSending] = useState(false);
 
@@ -105,7 +106,8 @@ export const SendBitcoinTransaction = () => {
             console.log(amountSats)
             console.log(JSON.stringify(utxos))
             const psbtBase64 = createPsbtForTransaction(senderAddress, recipientAddress, amountSats, utxos);
-            console.log(psbtBase64)
+            const bal = await primaryWallet.getBalance()
+            console.log(bal)
             const signParams = {
                 unsignedPsbtBase64: psbtBase64,
                 allowedSighash: [bitcoin.Transaction.SIGHASH_ALL],
@@ -114,7 +116,7 @@ export const SendBitcoinTransaction = () => {
             };
 
             const signedPsbt = await (primaryWallet as BitcoinWallet).signPsbt(signParams as any) as any;
-            console.log(signedPsbt)
+          
             const txHex = bitcoin.Psbt.fromBase64(signedPsbt.signedPsbt).finalizeAllInputs().extractTransaction().toHex()
             // const txHex = signedPsbt.toHex();
             console.log(txHex)
