@@ -139,7 +139,7 @@ function Providers({
         <DynamicContextProvider
             theme="dark"
             settings={{
-                environmentId: "2762a57b-faa4-41ce-9f16-abff9300e2c9",
+                environmentId: "42f4a546-8d90-4be7-93c0-f17980c4e9cd",
                 overrides: {
                     views: [{
                         type: SdkViewType.Login,
